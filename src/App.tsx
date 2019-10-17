@@ -1,24 +1,26 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import ReactBarrel from './react-barrel'
+
+let fakeData: data[] = [
+  { src: 'http://yy.aijk.xyz/rs/img//1/1/1-2_0_0.jpg' },
+  { src: 'http://yy.aijk.xyz/rs/img//1/1/1-2_0_0.jpg' },
+  { src: 'http://yy.aijk.xyz/rs/img//1/1/1-2_0_0.jpg' },
+  { src: 'http://yy.aijk.xyz/rs/img//1/1/1-2_0_0.jpg' },
+  { src: 'http://yy.aijk.xyz/rs/img//1/1/1-2_0_0.jpg' },
+];
+interface data {
+  src?: string;
+  width?: number;
+  height?: number;
+}
 
 const App: React.FC = () => {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ReactBarrel
+        data={fakeData}
+      />
     </div>
   );
 }
