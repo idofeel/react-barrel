@@ -1,0 +1,25 @@
+{
+  "name": "react-barrel",
+  "version": "1.0.1",
+  "description": "等高排版，木桶布局",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idofeel/react-barrel.git"
+  },
+  "keywords": [
+    "react-barrel"
+  ],
+  "author": "dofeel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/idofeel/react-barrel/issues"
+  },
+  "homepage": "https://github.com/idofeel/react-barrel#readme",
+  "devDependencies": {
+    "typescript": "^3.9.7"
+  }
+}

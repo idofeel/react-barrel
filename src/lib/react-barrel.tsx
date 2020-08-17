@@ -3,11 +3,12 @@ import React, { Component } from 'react'
 interface Props {
     baseHeight?: number // 基础高度
     data: propsData[]; // 数据
-    margin?: 5; // 图片间的间距
+    margin?: number; // 图片间的间距
     width?: number;
     wrapClassName?: string; // 外层容器的类名
     autoload?: boolean; // 自动加载图片
     renderItem?: Function;
+    diff?:any
 }
 
 interface propsData {
@@ -75,7 +76,6 @@ class ReactBarrel extends Component<Props, State>{
     render() {
         const { barrelData } = this.state;
         const { wrapClassName } = this.props;
-
         return (
             <div
                 ref={this.BarrelContainer}
@@ -86,7 +86,7 @@ class ReactBarrel extends Component<Props, State>{
     }
 
     async componentDidMount() {
-        this.totalWidth = this.totalWidth || this.getAutoWidth();
+        this.totalWidth = this.totalWidth || this.getAutoWidth() || 0;
         // 获取所有来源的图片实际宽高
         const { data } = this.props;
         const newdata: any = this.autoload
@@ -103,10 +103,9 @@ class ReactBarrel extends Component<Props, State>{
      * 窗口重置事件，重新初始化渲染
      */
     resize() {
-        console.log('reszie')
         const width = this.getAutoWidth();
         if (this.totalWidth === width) return;
-        this.totalWidth = this.props.width || width; // 重置高度
+        this.totalWidth = this.props.width || width || 0; // 重置高度
         this.initRender(this.firstLoadData);
     }
     /**
@@ -117,6 +116,7 @@ class ReactBarrel extends Component<Props, State>{
         this.firstLoadData = data; // 保留初始化加载的数据，当屏幕重置时重新计算
         // 获取行高一样的图片数据
         const rowHeights: barrelItem[] = this.getStandardHeight(data);
+
         let barrelData: barrelItem[] = []; // 最终渲染的数据
         let wholeWidth: number = 0; // 计算一行图片的宽度总和
         let tempBarrel: barrelItem[] = []; // 临时存储一行的数据
@@ -154,7 +154,17 @@ class ReactBarrel extends Component<Props, State>{
                 }
             }
         });
-
+        if (!this.props.diff && tempBarrel.length && barrelData.length) {
+            // 没有差异的情况下，取最后一个
+            const blen = barrelData.length
+            const { width, height } = barrelData[blen - 1];
+            tempBarrel = tempBarrel.map(item => {
+                item.width = width
+                item.height = height
+                return item;
+            })
+            tempBarrel[tempBarrel.length - 1].margin = 0
+        }
         barrelData.push(...tempBarrel); //将剩余的不够一行的数据追加到最后
         // 渲染数据
         this.setState({
@@ -204,6 +214,7 @@ class ReactBarrel extends Component<Props, State>{
             const { width = 0, height = 0, src } = item;
             const imgRatio = height / baseHeight; // 根据基础高度获取图片比例
             return {
+                ...item,
                 height: baseHeight, // 将图片设置为基础高度
                 width: width / imgRatio, // 等比缩放宽度
                 src, // 图片地址
@@ -215,26 +226,23 @@ class ReactBarrel extends Component<Props, State>{
     }
 
     getAutoWidth() {
-        const dom: any = this.BarrelContainer.current,
-            style: any = window.getComputedStyle(dom),
-            { paddingLeft, paddingRight } = style,
+        const dom: any = this.BarrelContainer.current;
+        if (!dom) return;
+        const style: any = window.getComputedStyle(dom),
+            { paddingLeft = 0, paddingRight = 0 } = style || {},
             width: number =
-                dom.offsetWidth -
+                dom.clientWidth -
                 parseInt(`${paddingLeft}`) -
                 parseInt(`${paddingRight}`);
         return width;
     }
-
-
-
-
 
     /**
 	 * 0.获取图片真实宽高
 	 * @param {*} url 图片地址
 	 * @returns {Promise}  res {width,height,src}
 	 */
-    getImgInfo(url: string | undefined) {
+    getImgInfo(url: string | undefined): any {
         if (!url) return [];
         return new Promise((resolve, reject) => {
             let img = new Image();
@@ -263,6 +271,12 @@ class ReactBarrel extends Component<Props, State>{
                 }
             }, 50);
         });
+    }
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
+        if (nextProps.data.length !== this.state.barrelData.length) {
+
+            this.initRender(nextProps.data)
+        }
     }
 }
 export default ReactBarrel
